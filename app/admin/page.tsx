@@ -89,7 +89,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <button className="btn ghost" type="submit">Déconnexion</button>
         </form>
       </div>
-      <p className="text-secondary">Samedi 17/10 à 17h00, chez la sœur missionnaire Susy. Les totaux comptent la dernière réponse de chaque personne.</p>
+      <p className="text-secondary">Samedi 17/10 à 17h00, chez la sœur missionnaire Susy.</p>
 
       {error && <p className="error">Erreur de lecture de la base de données.</p>}
 
