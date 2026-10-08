@@ -2,22 +2,21 @@
 
 import { useState } from "react";
 import {
-  RingsIcon,
-  MapPinIcon,
+  PinIcon,
   CalendarIcon,
   ClockIcon,
+  CheckIcon,
+  CrossIcon,
+  QuestionIcon,
   CheckCircleIcon,
-  XCircleIcon,
-  QuestionCircleIcon,
-  DecorativeDivider,
 } from "@/components/Icons";
 
 type Choix = "oui" | "non" | "a_confirmer";
 
-const OPTIONS: { value: Choix; label: string; Icon: typeof CheckCircleIcon }[] = [
-  { value: "oui", label: "Oui, je serai present(e)", Icon: CheckCircleIcon },
-  { value: "non", label: "Non, je ne pourrai pas etre present(e)", Icon: XCircleIcon },
-  { value: "a_confirmer", label: "Je dois encore confirmer", Icon: QuestionCircleIcon },
+const OPTIONS: { value: Choix; label: string; Icon: typeof CheckIcon }[] = [
+  { value: "oui", label: "Oui, je serai present(e)", Icon: CheckIcon },
+  { value: "non", label: "Non, je ne pourrai pas etre present(e)", Icon: CrossIcon },
+  { value: "a_confirmer", label: "Je dois encore confirmer", Icon: QuestionIcon },
 ];
 
 export default function Page() {
@@ -77,25 +76,35 @@ export default function Page() {
   return (
     <main>
       <div className="card">
-        <h1>
-          <RingsIcon size={28} />
-          Sondage : reunion pour l'organisation du mariage
-        </h1>
+        <div className="label-top">Reunion mariage</div>
+        <h1>Reunion pour l'organisation du mariage</h1>
         <p>La paix du Seigneur a tous.</p>
         <p>
           Roberto et moi souhaitons organiser une prochaine reunion afin d'echanger et de discuter ensemble de
           l'organisation de notre mariage.
         </p>
 
-        <div className="details">
-          <p><MapPinIcon size={18} /> <b>Lieu :</b> chez la soeur missionnaire Susy</p>
-          <p><CalendarIcon size={18} /> <b>Jour :</b> samedi 17/10</p>
-          <p><ClockIcon size={18} /> <b>Heure :</b> 17h00</p>
+        <div className="info-block">
+          <div className="info-row">
+            <PinIcon size={18} />
+            <span className="info-label">Lieu</span>
+            <span className="info-value">Chez la soeur missionnaire Susy</span>
+          </div>
+          <div className="info-row">
+            <CalendarIcon size={18} />
+            <span className="info-label">Jour</span>
+            <span className="info-value">Samedi 17/10</span>
+          </div>
+          <div className="info-row">
+            <ClockIcon size={18} />
+            <span className="info-label">Heure</span>
+            <span className="info-value">17h00</span>
+          </div>
         </div>
 
         {etape === "nom" && (
           <form onSubmit={continuer}>
-            <p className="muted">Pour commencer, indiquez qui vous etes.</p>
+            <p className="text-secondary">Pour commencer, indiquez qui vous etes.</p>
             <label htmlFor="prenom">Prenom</label>
             <input id="prenom" type="text" value={prenom} onChange={(e) => setPrenom(e.target.value)} autoComplete="given-name" maxLength={80} />
             <label htmlFor="nom">Nom</label>
@@ -107,7 +116,7 @@ export default function Page() {
 
         {etape === "sondage" && (
           <div>
-            <p className="muted">Bonjour {prenom} {nom}.</p>
+            <p className="text-secondary">Bonjour {prenom} {nom}.</p>
             <p>Merci de nous indiquer votre presence afin que nous puissions nous organiser au mieux.</p>
             <h2>Serez-vous disponibles samedi a 17h00 ?</h2>
             <div className="choices">
@@ -119,8 +128,9 @@ export default function Page() {
                   aria-pressed={choix === o.value}
                   onClick={() => setChoix(o.value)}
                 >
-                  <o.Icon size={22} />
-                  {o.label}
+                  <o.Icon size={20} />
+                  <span className="choice-text">{o.label}</span>
+                  <span className="choice-radio" />
                 </button>
               ))}
             </div>
@@ -136,10 +146,15 @@ export default function Page() {
 
         {etape === "merci" && (
           <div>
-            <h2>Merci {prenom} !</h2>
-            <p>Votre reponse a bien ete enregistree.</p>
+            <div className="thank-you-icon">
+              <div className="thank-you-circle">
+                <CheckCircleIcon size={36} />
+              </div>
+            </div>
+            <h2 style={{ textAlign: "center", marginTop: 0 }}>Merci {prenom} !</h2>
+            <p style={{ textAlign: "center" }}>Votre reponse a bien ete enregistree.</p>
             {dernier === "a_confirmer" && (
-              <p className="muted">
+              <p className="text-secondary" style={{ textAlign: "center" }}>
                 Vous pourrez revenir sur ce lien quand vous serez fixe(e) et envoyer une nouvelle reponse.
               </p>
             )}
@@ -147,13 +162,10 @@ export default function Page() {
           </div>
         )}
 
-        <div className="divider">
-          <DecorativeDivider size={100} />
+        <div className="footer-text">
+          <p>Merci a tous pour votre disponibilite et votre aide.</p>
+          <p>Que Dieu vous benisse abondamment !</p>
         </div>
-        <p className="muted" style={{ textAlign: "center" }}>
-          Merci a tous pour votre disponibilite et votre aide.<br />
-          Que Dieu vous benisse abondamment !
-        </p>
       </div>
     </main>
   );
