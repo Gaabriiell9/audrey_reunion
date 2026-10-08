@@ -77,6 +77,29 @@ main {
   margin-bottom: var(--space-xs);
 }
 
+.etape-content {
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+.etape-content.visible {
+  opacity: 1;
+}
+
+.etape-nom {
+  padding-top: var(--space-xs);
+}
+
+.etape-nom .text-secondary {
+  margin-bottom: var(--space-md);
+}
+
+.greeting {
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: var(--space-sm);
+}
+
 h1 {
   font-size: clamp(1.45rem, 6vw, 1.85rem);
   font-weight: 600;
