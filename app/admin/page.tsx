@@ -2,9 +2,10 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE, adminToken, isValidToken, passwordMatches } from "@/lib/auth";
 import { supabaseAdmin, type Reponse } from "@/lib/supabase";
+import { CheckCircleIcon, XCircleIcon, QuestionCircleIcon } from "@/components/Icons";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Admin | Sondage réunion", robots: { index: false, follow: false } };
+export const metadata = { title: "Admin | Sondage reunion", robots: { index: false, follow: false } };
 
 async function login(formData: FormData) {
   "use server";
@@ -28,10 +29,10 @@ async function logout() {
   redirect("/admin");
 }
 
-const LABELS: Record<Reponse["reponse"], string> = {
-  oui: "✅ Présent(e)",
-  non: "❌ Absent(e)",
-  a_confirmer: "🤔 À confirmer",
+const LABELS: Record<Reponse["reponse"], { text: string; Icon: typeof CheckCircleIcon }> = {
+  oui: { text: "Present(e)", Icon: CheckCircleIcon },
+  non: { text: "Absent(e)", Icon: XCircleIcon },
+  a_confirmer: { text: "A confirmer", Icon: QuestionCircleIcon },
 };
 
 const norm = (s: string) =>
@@ -68,11 +69,10 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   const rows = (data ?? []) as Reponse[];
 
-  // Derniere reponse de chaque personne (meme nom et prenom, sans accents ni casse).
   const derniereParPersonne = new Map<string, string>();
   for (const r of rows) {
     const key = `${norm(r.prenom)}|${norm(r.nom)}`;
-    if (!derniereParPersonne.has(key)) derniereParPersonne.set(key, r.id); // rows deja tries du plus recent au plus ancien
+    if (!derniereParPersonne.has(key)) derniereParPersonne.set(key, r.id);
   }
   const actuelles = rows.filter((r) => derniereParPersonne.get(`${norm(r.prenom)}|${norm(r.nom)}`) === r.id);
   const count = (v: Reponse["reponse"]) => actuelles.filter((r) => r.reponse === v).length;
@@ -80,39 +80,43 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   return (
     <main className="wide">
       <div className="topbar">
-        <h1>Résultats du sondage</h1>
+        <h1>Resultats du sondage</h1>
         <form action={logout}>
-          <button className="btn ghost" type="submit">Déconnexion</button>
+          <button className="btn ghost" type="submit">Deconnexion</button>
         </form>
       </div>
-      <p className="muted">Samedi 17/10 à 17h00, chez la sœur missionnaire Susy. Les totaux comptent la dernière réponse de chaque personne.</p>
+      <p className="muted">Samedi 17/10 a 17h00, chez la soeur missionnaire Susy. Les totaux comptent la derniere reponse de chaque personne.</p>
 
-      {error && <p className="error">Erreur de lecture de la base de données.</p>}
+      {error && <p className="error">Erreur de lecture de la base de donnees.</p>}
 
       <div className="stats">
-        <div className="stat oui"><b>{count("oui")}</b>Présents</div>
+        <div className="stat oui"><b>{count("oui")}</b>Presents</div>
         <div className="stat non"><b>{count("non")}</b>Absents</div>
-        <div className="stat a_confirmer"><b>{count("a_confirmer")}</b>À confirmer</div>
+        <div className="stat a_confirmer"><b>{count("a_confirmer")}</b>A confirmer</div>
       </div>
 
-      <h2>Toutes les réponses ({rows.length})</h2>
+      <h2>Toutes les reponses ({rows.length})</h2>
       <div className="table-wrap">
         <table>
           <thead>
-            <tr><th>Prénom</th><th>Nom</th><th>Réponse</th><th>Date</th></tr>
+            <tr><th>Prenom</th><th>Nom</th><th>Reponse</th><th>Date</th></tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={4} className="muted">Aucune réponse pour le moment.</td></tr>
+              <tr><td colSpan={4} className="muted">Aucune reponse pour le moment.</td></tr>
             )}
             {rows.map((r) => {
               const ancienne = derniereParPersonne.get(`${norm(r.prenom)}|${norm(r.nom)}`) !== r.id;
+              const { text, Icon } = LABELS[r.reponse];
               return (
                 <tr key={r.id} style={ancienne ? { opacity: 0.6 } : undefined}>
                   <td>{r.prenom}</td>
                   <td>{r.nom}</td>
                   <td>
-                    <span className={`tag ${r.reponse}`}>{LABELS[r.reponse]}</span>
+                    <span className={`tag ${r.reponse}`}>
+                      <Icon size={14} />
+                      {text}
+                    </span>
                     {ancienne && <span className="tag old">ancienne</span>}
                   </td>
                   <td>{fmt(r.created_at)}</td>
