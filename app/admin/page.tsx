@@ -5,7 +5,7 @@ import { supabaseAdmin, type Reponse } from "@/lib/supabase";
 import { CheckIcon, CrossIcon, QuestionIcon } from "@/components/Icons";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Admin | Sondage reunion", robots: { index: false, follow: false } };
+export const metadata = { title: "Admin | Sondage réunion", robots: { index: false, follow: false } };
 
 async function login(formData: FormData) {
   "use server";
@@ -30,9 +30,9 @@ async function logout() {
 }
 
 const LABELS: Record<Reponse["reponse"], { text: string; Icon: typeof CheckIcon }> = {
-  oui: { text: "Present(e)", Icon: CheckIcon },
+  oui: { text: "Présent(e)", Icon: CheckIcon },
   non: { text: "Absent(e)", Icon: CrossIcon },
-  a_confirmer: { text: "A confirmer", Icon: QuestionIcon },
+  a_confirmer: { text: "À confirmer", Icon: QuestionIcon },
 };
 
 const norm = (s: string) =>
@@ -83,20 +83,20 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       <div className="topbar">
         <div>
           <div className="label-top">Administration</div>
-          <h1>Resultats du sondage</h1>
+          <h1>Résultats du sondage</h1>
         </div>
         <form action={logout}>
-          <button className="btn ghost" type="submit">Deconnexion</button>
+          <button className="btn ghost" type="submit">Déconnexion</button>
         </form>
       </div>
-      <p className="text-secondary">Samedi 17/10 a 17h00, chez la soeur missionnaire Susy. Les totaux comptent la derniere reponse de chaque personne.</p>
+      <p className="text-secondary">Samedi 17/10 à 17h00, chez la sœur missionnaire Susy. Les totaux comptent la dernière réponse de chaque personne.</p>
 
-      {error && <p className="error">Erreur de lecture de la base de donnees.</p>}
+      {error && <p className="error">Erreur de lecture de la base de données.</p>}
 
       <div className="stats">
         <div className="stat oui">
           <b>{count("oui")}</b>
-          <span>Presents</span>
+          <span>Présents</span>
         </div>
         <div className="stat non">
           <b>{count("non")}</b>
@@ -104,19 +104,45 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         </div>
         <div className="stat a_confirmer">
           <b>{count("a_confirmer")}</b>
-          <span>A confirmer</span>
+          <span>À confirmer</span>
         </div>
       </div>
 
-      <h2>Toutes les reponses ({rows.length})</h2>
+      <h2>Toutes les réponses ({rows.length})</h2>
+
+      <div className="response-list">
+        {rows.length === 0 && (
+          <p className="text-secondary">Aucune réponse pour le moment.</p>
+        )}
+        {rows.map((r) => {
+          const ancienne = derniereParPersonne.get(`${norm(r.prenom)}|${norm(r.nom)}`) !== r.id;
+          const { text, Icon } = LABELS[r.reponse];
+          return (
+            <div key={r.id} className={`response-card${ancienne ? " ancienne" : ""}`}>
+              <div className="response-card-header">
+                <span className="response-card-name">{r.prenom} {r.nom}</span>
+                <span className={`tag ${r.reponse}`}>
+                  <Icon size={14} />
+                  {text}
+                </span>
+              </div>
+              <div className="response-card-date">
+                {fmt(r.created_at)}
+                {ancienne && <span className="tag old">ancienne</span>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       <div className="table-wrap">
         <table>
           <thead>
-            <tr><th>Prenom</th><th>Nom</th><th>Reponse</th><th>Date</th></tr>
+            <tr><th>Prénom</th><th>Nom</th><th>Réponse</th><th>Date</th></tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={4} className="text-secondary">Aucune reponse pour le moment.</td></tr>
+              <tr><td colSpan={4} className="text-secondary">Aucune réponse pour le moment.</td></tr>
             )}
             {rows.map((r) => {
               const ancienne = derniereParPersonne.get(`${norm(r.prenom)}|${norm(r.nom)}`) !== r.id;
